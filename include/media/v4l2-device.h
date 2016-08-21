@@ -35,6 +35,7 @@ struct v4l2_ctrl_handler;
  * @dev: pointer to struct device.
  * @mdev: pointer to struct media_device
  * @subdevs: used to keep track of the registered subdevs
+ * @vdevs: used to keep track of the registered video_devices
  * @lock: lock this struct; can be used by the driver as well
  *	if this struct is embedded into a larger struct.
  * @name: unique device name, by default the driver name + bus ID
@@ -63,6 +64,7 @@ struct v4l2_device {
 	struct media_device *mdev;
 #endif
 	struct list_head subdevs;
+	struct list_head vdevs;
 	spinlock_t lock;
 	char name[V4L2_DEVICE_NAME_SIZE];
 	void (*notify)(struct v4l2_subdev *sd,
@@ -71,6 +73,8 @@ struct v4l2_device {
 	struct v4l2_prio_state prio;
 	struct kref ref;
 	void (*release)(struct v4l2_device *v4l2_dev);
+	/* Queue a request */
+	int (*req_queue)(struct v4l2_device *v4l2_dev, u16 request);
 };
 
 /**
@@ -213,6 +217,9 @@ static inline void v4l2_subdev_notify(struct v4l2_subdev *sd,
 	if (sd && sd->v4l2_dev && sd->v4l2_dev->notify)
 		sd->v4l2_dev->notify(sd, notification, arg);
 }
+
+/* For each registered video_device struct call vb2_qbuf_request(). */
+int v4l2_device_req_queue(struct v4l2_device *v4l2_dev, u16 request);
 
 /* Iterate over all subdevs. */
 #define v4l2_device_for_each_subdev(sd, v4l2_dev)			\

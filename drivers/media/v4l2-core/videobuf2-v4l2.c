@@ -179,6 +179,11 @@ static int vb2_queue_or_prepare_buf(struct vb2_queue *q, struct v4l2_buffer *b,
 		return -EINVAL;
 	}
 
+	if (!q->v4l2_allow_requests && b->request) {
+		dprintk(1, "%s: unsupported request ID\n", opname);
+		return -EINVAL;
+	}
+
 	return __verify_planes_array(q->bufs[b->index], b);
 }
 
@@ -204,6 +209,7 @@ static void __fill_v4l2_buffer(struct vb2_buffer *vb, void *pb)
 	b->timestamp = ns_to_timeval(vb->timestamp);
 	b->timecode = vbuf->timecode;
 	b->sequence = vbuf->sequence;
+	b->request = vbuf->request;
 	b->reserved2 = 0;
 	b->reserved = 0;
 
@@ -438,6 +444,8 @@ static int __fill_vb2_buffer(struct vb2_buffer *vb,
 		vbuf->flags &= ~V4L2_BUFFER_OUT_FLAGS;
 	}
 
+	vbuf->request = b->request;
+
 	return 0;
 }
 
@@ -616,6 +624,27 @@ int vb2_qbuf(struct vb2_queue *q, struct v4l2_buffer *b)
 	return ret ? ret : vb2_core_qbuf(q, b->index, b);
 }
 EXPORT_SYMBOL_GPL(vb2_qbuf);
+
+int vb2_qbuf_request(struct vb2_queue *q, u16 request, struct vb2_buffer **p_buf)
+{
+	struct v4l2_buffer v4l2_buf;
+	int buffer;
+
+	for (buffer = 0; buffer < q->num_buffers; buffer++) {
+		struct vb2_buffer *vb = q->bufs[buffer];
+		struct vb2_v4l2_buffer *vbuf = to_vb2_v4l2_buffer(vb);
+
+		if (vbuf->request == request &&
+		    vb->state == VB2_BUF_STATE_PREPARED) {
+			if (p_buf)
+				*p_buf = vb;
+			__fill_v4l2_buffer(vb, &v4l2_buf);
+			return vb2_qbuf(q, &v4l2_buf);
+		}
+	}
+	return -ENOENT;
+}
+EXPORT_SYMBOL_GPL(vb2_qbuf_request);
 
 /**
  * vb2_dqbuf() - Dequeue a buffer to the userspace
