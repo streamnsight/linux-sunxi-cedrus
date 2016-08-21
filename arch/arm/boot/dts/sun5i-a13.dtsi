@@ -46,8 +46,10 @@
 
 #include "sun5i.dtsi"
 
+#include <dt-bindings/clock/sun5i-a13-ccu.h>
 #include <dt-bindings/pinctrl/sun4i-a10.h>
 #include <dt-bindings/thermal/thermal.h>
+#include <dt-bindings/reset/sun5i-a13-ccu.h>
 
 / {
 	interrupt-parent = <&intc>;
@@ -64,6 +66,19 @@
 			clocks = <&ahb_gates 36>, <&ahb_gates 44>, <&de_be_clk>,
 				 <&tcon_ch0_clk>, <&dram_gates 26>;
 			status = "disabled";
+		};
+	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		ve_reserved: cma {
+			compatible = "shared-dma-pool";
+			reg = <0x43d00000 0x9000000>;
+			no-map;
+			linux,cma-default;
 		};
 	};
 
@@ -326,6 +341,33 @@
 					};
 				};
 			};
+		};
+
+		video-engine {
+			compatible = "allwinner,sun5i-a13-video-engine";
+			memory-region = <&ve_reserved>;
+
+			clocks = <&ahb_gates 32>, <&ccu CLK_VE>,
+				 <&dram_gates 0>;
+			clock-names = "ahb", "mod", "ram";
+
+			assigned-clocks = <&ccu CLK_VE>;
+			assigned-clock-rates = <320000000>;
+
+			resets = <&ccu RST_VE>;
+
+			interrupts = <53>;
+
+			reg = <0x01c0e000 4096>;
+		};
+
+		ccu: clock@01c20000 {
+			compatible = "allwinner,sun5i-a13-ccu";
+			reg = <0x01c20000 0x400>;
+			clocks = <&osc24M>, <&osc32k>;
+			clock-names = "hosc", "losc";
+			#clock-cells = <1>;
+			#reset-cells = <1>;
 		};
 	};
 };
