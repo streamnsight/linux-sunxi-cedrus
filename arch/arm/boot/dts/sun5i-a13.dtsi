@@ -160,10 +160,10 @@
 			clocks = <&apb1>;
 			clock-indices = <0>, <1>,
 					<2>, <17>,
-					<19>;
+					<18>, <19>;
 			clock-output-names = "apb1_i2c0", "apb1_i2c1",
 					     "apb1_i2c2", "apb1_uart1",
-					     "apb1_uart3";
+					     "apb1_uart2", "apb1_uart3";
 		};
 
 		dram_gates: clk@01c20100 {
@@ -411,6 +411,13 @@
 	uart1_pins_b: uart1@1 {
 		allwinner,pins = "PG3", "PG4";
 		allwinner,function = "uart1";
+		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+	};
+
+	uart2_pins: uart2@0 {
+		allwinner,pins = "PD2", "PD3";
+		allwinner,function = "uart2";
 		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
 		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 	};
