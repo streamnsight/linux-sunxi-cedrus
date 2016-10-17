@@ -155,11 +155,13 @@ static const struct sunxi_desc_pin sun5i_a13_pins[] = {
 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 2),
 		  SUNXI_FUNCTION(0x0, "gpio_in"),
 		  SUNXI_FUNCTION(0x1, "gpio_out"),
-		  SUNXI_FUNCTION(0x2, "lcd0")),		/* D2 */
+		  SUNXI_FUNCTION(0x2, "lcd0"),		/* D2 */
+                  SUNXI_FUNCTION(0x3, "uart2")),
 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 3),
 		  SUNXI_FUNCTION(0x0, "gpio_in"),
 		  SUNXI_FUNCTION(0x1, "gpio_out"),
-		  SUNXI_FUNCTION(0x2, "lcd0")),		/* D3 */
+		  SUNXI_FUNCTION(0x2, "lcd0"),		/* D3 */
+		  SUNXI_FUNCTION(0x3, "uart2")),
 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 4),
 		  SUNXI_FUNCTION(0x0, "gpio_in"),
 		  SUNXI_FUNCTION(0x1, "gpio_out"),
